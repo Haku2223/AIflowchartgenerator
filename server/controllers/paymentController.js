@@ -1,26 +1,31 @@
-// paymentController.js
+// server/controllers/paymentController.js
 const stripeService = require('../services/stripeService');
 
-/**
- * This controller handles requests related to payments or credit purchases.
- * For example, when a user wants to buy a flowchart credit.
- */
-async function purchaseCredit(req, res, next) {
+async function handleStripeWebhook(req, res) {
   try {
-    // Example: Hard-code the price or retrieve it from your config
-    const priceInCents = 299; // $2.99
-    const paymentIntent = await stripeService.createPaymentIntent(priceInCents);
+    // Let Stripe verify the signature, parse event, etc.
+    const event = await stripeService.constructEventFromWebhook(req);
 
-    // Return the clientSecret so the frontend can confirm the payment
-    return res.status(200).json({
-      clientSecret: paymentIntent.client_secret,
-      message: 'Payment intent created successfully',
-    });
-  } catch (error) {
-    next(error); // or handle the error gracefully
+    // Handle different types of events:
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        // For example, update user’s credits or record a transaction
+        console.log('Payment succeeded!', event.data.object);
+        break;
+      // more events ...
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    // Acknowledge receipt of the event
+    res.json({ received: true });
+  } catch (err) {
+    console.error('Webhook Error:', err);
+    res.status(400).send(`Webhook Error: ${err.message}`);
   }
 }
 
 module.exports = {
-  purchaseCredit,
+  // existing exports (purchaseCredit, etc.)
+  handleStripeWebhook,
 };

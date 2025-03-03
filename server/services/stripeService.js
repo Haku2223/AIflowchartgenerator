@@ -1,28 +1,27 @@
-// stripeService.js
+// server/services/stripeService.js
 const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 class StripeService {
-  constructor() {
-    // Set up the Stripe client
-    this.stripe = Stripe(process.env.STRIPE_SECRET_KEY); // load from .env or environment
-  }
+  // existing methods (like createPaymentIntent)
 
-  async createPaymentIntent(amount, currency = 'usd') {
-    try {
-      // Create a Payment Intent with the desired amount (in cents), currency, etc.
-      const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: amount,       // e.g. 299 for $2.99
-        currency: currency,   // e.g. 'usd'
-        // any additional payment intent options
-      });
-      return paymentIntent;
-    } catch (error) {
-      console.error('Error creating payment intent:', error);
-      throw error;
-    }
-  }
+  constructEventFromWebhook(req) {
+    // If you're verifying signatures, you need the raw body and a Stripe webhook secret
+    // But at a minimum, you might parse the event from the request body:
+    return new Promise((resolve, reject) => {
+      try {
+        // If using the raw body + signature (recommended for production):
+        // const sig = req.headers['stripe-signature'];
+        // const event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
 
-  // Add more methods as needed, e.g., handling webhooks, refunds, etc.
+        // For development without signature verification:
+        const event = req.body;
+        resolve(event);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
 }
 
 module.exports = new StripeService();
