@@ -2,7 +2,14 @@
   "name": "ai-flowchart-generator",
   "version": "1.0.0",
   "main": "index.js",
+  "description": "",
   "scripts": {
+   
+    "start": "node server/index.js",
+
+
+    "build": "echo \"No build step necessary\"",
+    
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,7 +23,6 @@
     "url": "https://github.com/Haku2223/AIflowchartgenerator/issues"
   },
   "homepage": "https://github.com/Haku2223/AIflowchartgenerator#readme",
-  "description": "",
   "dependencies": {
     "@stripe/react-stripe-js": "^3.1.1",
     "@stripe/stripe-js": "^5.7.0",
